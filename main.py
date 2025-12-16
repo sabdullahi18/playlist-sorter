@@ -17,11 +17,22 @@ SOURCE_PLAYLISTS = [
     "2vhbjheMvUKR3OyX4FQrN8",
     "1KzJILWuReQ8OSjQanI5LG",
     "1WOV25D9VCORXkjDwJ4oHq",
+    "4Eq9CvOurX3fUwLs3itjJi",
+    "02YU2H202FR4WvKUwJJ29M",
+    "6iMfJfX3hDFtbMe0koHh0B",
+    "2VR8EeOC3QYL8JudM4BLEl",
+    "7u6ru8egT8bFqxwHyxAt9o",
+    "0nhh0RUd0JvboUAgO76OdH",
+    "7bfiiRryBWurKNfwq8dWLc",
+    "02aLUpGZTZ8CX6LMgScgUR",
+    "1s3OL6khnDRW5nOvgY6DvN",
+    "0D96bhlUcO1GMnGmFCECCV",
+    "2xZesaH6DrK6YJpI48Hs0B",
 ]
 SORTING_RULES = [
     {
-        "id": "japanese",
-        "name": "日本語",
+        "id": "jp",
+        "name": "japanese (日本語)",
         "target_id": "2VR8EeOC3QYL8JudM4BLEl",
         "keywords": [
             "japanese",
@@ -37,7 +48,21 @@ SORTING_RULES = [
             "oshare kei",
             "shibuya-kei",
         ],
-    }
+    },
+    {
+        "id": "ar",
+        "name": "arabic (عربي)",
+        "target_id": "02YU2H202FR4WvKUwJJ29M",
+        "keywords": [
+            "arab",
+            "deep rai",
+            "islamic recitation",
+            "maghreb",
+            "nasheed",
+            "belly dance",
+            "mizrahi",
+        ],
+    },
 ]
 
 artist_cache = {}
@@ -76,7 +101,7 @@ def get_all_playlist_tracks(sp, playlist_id):
 def main():
     parser = argparse.ArgumentParser(description="Spotify Playlist Sorter")
     parser.add_argument(
-        "--rule", type=str, help="Run a specific rule by its ID (e.g., --rule japanese)"
+        "--rule", type=str, help="Run a specific rule by its ID (e.g., --rule jp)"
     )
     parser.add_argument(
         "--list", action="store_true", help="List all available rule IDs"
@@ -89,21 +114,13 @@ def main():
             print(f" - {rule['id']} : {rule['name']}")
         return
 
-    active_rules = []
+    active_rules = SORTING_RULES
     if args.rule:
-        found = False
-        for rule in SORTING_RULES:
-            if rule["id"] == args.rule:
-                active_rules.append(rule)
-                found = True
-                break
-        if not found:
+        active_rules = [r for r in SORTING_RULES if r["id"] == args.rule]
+        if not active_rules:
             print(f"Error: No rule found with ID {args.rule}")
             print("Use --list to see available options")
             return
-    else:
-        # no flag provided, run all the rules
-        active_rules = SORTING_RULES
 
     print(f"Running {len(active_rules)} rule(s)...")
 
@@ -126,14 +143,15 @@ def main():
     print(f"Found {len(existing_tracks[pid])} songs already in target playlist.")
 
     print("--- 2. Scanning source playlists ---")
-    songs_to_add = []
+    candidate_tracks = []
     candidate_artists = set()
 
-    for playlist_id in SOURCE_PLAYLISTS:
-        print(f"Reading playlist: {playlist_id}...")
+    for i, playlist_id in enumerate(SOURCE_PLAYLISTS):
+        print(f"Reading playlist {i+1}/{len(SOURCE_PLAYLISTS)}: {playlist_id}...")
         items = get_all_playlist_tracks(sp, playlist_id)
+        print(f"Found {len(items)} tracks")
 
-        for item in tracks:
+        for item in items:
             track = item["track"]
             if not track or not track["artists"]:
                 continue
@@ -144,8 +162,11 @@ def main():
                 "artist_id": track["artists"][0].get("id"),
             }
             if track_data["artist_id"]:
-                songs_to_add.append(track_data)
+                candidate_tracks.append(track_data)
                 candidate_artists.add(track_data["artist_id"])
+
+    print(f" > Total unique artists found: {len(candidate_artists)}")
+    print(f" > Total tracks to check: {len(candidate_tracks)}")
 
     print(f"--- 3. Checking genres for {len(candidate_artists)} artists ---")
     artist_genre_map = get_artist_genre_map(list(candidate_artists), sp)
@@ -153,7 +174,7 @@ def main():
     print("--- 4. Sorting songs ---")
     songs_to_add_map = {rule["target_id"]: [] for rule in active_rules}
 
-    for track in songs_to_add:
+    for track in candidate_tracks:
         artist_id = track["artist_id"]
         track_uri = track["uri"]
         artist_genres = artist_genre_map.get(artist_id, [])
