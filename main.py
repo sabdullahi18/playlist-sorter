@@ -1,4 +1,5 @@
 import spotipy
+import argparse
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
 
@@ -17,28 +18,35 @@ SOURCE_PLAYLISTS = [
     "1KzJILWuReQ8OSjQanI5LG",
     "1WOV25D9VCORXkjDwJ4oHq",
 ]
-TARGET_PLAYLIST_ID = "2VR8EeOC3QYL8JudM4BLEl"
+SORTING_RULES = [
+    {
+        "id": "japanese",
+        "name": "日本語",
+        "target_id": "2VR8EeOC3QYL8JudM4BLEl",
+        "keywords": [
+            "japanese",
+            "j-",
+            "anime",
+            "city pop",
+            "visual kei",
+            "vocaloid",
+            "bemani",
+            "doujin",
+            "enka",
+            "japanoise",
+            "oshare kei",
+            "shibuya-kei",
+        ],
+    }
+]
 
 artist_cache = {}
 
 
-def get_japanese_artist_genres(artist_ids, sp):
-    artist_genres_map = {}
-    target_keywords = [
-        "japanese",
-        "j-",
-        "anime",
-        "city pop",
-        "visual kei",
-        "vocaloid",
-        "bemani",
-        "doujin",
-        "enka",
-        "japanoise",
-        "oshare kei",
-        "shibuya-kei",
-    ]
+def get_artist_genre_map(artist_ids, sp):
+    artist_genre_map = {}
     unique_ids = [uid for uid in list(set(artist_ids)) if uid]
+
     for i in range(0, len(unique_ids), 50):
         chunk = unique_ids[i : i + 50]
         try:
@@ -46,94 +54,146 @@ def get_japanese_artist_genres(artist_ids, sp):
             for artist in response["artists"]:
                 if not artist:
                     continue
-                genres = artist.get("genres", [])
-                for genre in genres:
-                    if any(keyword in genre.lower() for keyword in target_keywords):
-                        artist_genres_map[artist["id"]] = genre
-                        break
-
+                artist_genre_map[artist["id"]] = artist.get("genres", [])
         except Exception as e:
             print(f"Error fetching artists {e}")
-    return artist_genres_map
+    return artist_genre_map
 
 
 def get_all_playlist_tracks(sp, playlist_id):
-    results = sp.playlist_items(playlist_id)
-    tracks = results["items"]
-    while results["next"]:
-        results = sp.next(results)
+    tracks = []
+    try:
+        results = sp.playlist_items(playlist_id)
         tracks.extend(results["items"])
+        while results["next"]:
+            results = sp.next(results)
+            tracks.extend(results["items"])
+    except Exception as e:
+        print(f"Couldn't read playlist {playlist_id}: {e}")
     return tracks
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Spotify Playlist Sorter")
+    parser.add_argument(
+        "--rule", type=str, help="Run a specific rule by its ID (e.g., --rule japanese)"
+    )
+    parser.add_argument(
+        "--list", action="store_true", help="List all available rule IDs"
+    )
+    args = parser.parse_args()
+
+    if args.list:
+        print("\nAvailable rules:")
+        for rule in SORTING_RULES:
+            print(f" - {rule['id']} : {rule['name']}")
+        return
+
+    active_rules = []
+    if args.rule:
+        found = False
+        for rule in SORTING_RULES:
+            if rule["id"] == args.rule:
+                active_rules.append(rule)
+                found = True
+                break
+        if not found:
+            print(f"Error: No rule found with ID {args.rule}")
+            print("Use --list to see available options")
+            return
+    else:
+        # no flag provided, run all the rules
+        active_rules = SORTING_RULES
+
+    print(f"Running {len(active_rules)} rule(s)...")
+
     sp = spotipy.Spotify(
         auth_manager=SpotifyOAuth(
             scope="playlist-modify-public playlist-modify-private"
         )
     )
 
-    print("--- Scanning target playlist (prevent duplicates) ---")
-    existing_tracks = get_all_playlist_tracks(sp, TARGET_PLAYLIST_ID)
-    existing_uris = set()
-    for item in existing_tracks:
-        if item["track"]:
-            existing_uris.add(item["track"]["uri"])
-    print(f"Found {len(existing_uris)} songs already in target playlist.")
+    print("--- 1. Scanning target playlist (prevent duplicates) ---")
+    existing_tracks = {}
+    for rule in active_rules:
+        pid = rule["target_id"]
+        tracks = get_all_playlist_tracks(sp, pid)
+        uris = set()
+        for item in tracks:
+            if item["track"]:
+                uris.add(item["track"]["uri"])
+        existing_tracks[pid] = uris
+    print(f"Found {len(existing_tracks[pid])} songs already in target playlist.")
 
-    print("--- Scanning source playlists ---")
+    print("--- 2. Scanning source playlists ---")
     songs_to_add = []
-    candidate_artists = {}
+    candidate_artists = set()
 
     for playlist_id in SOURCE_PLAYLISTS:
         print(f"Reading playlist: {playlist_id}...")
-        tracks = get_all_playlist_tracks(sp, playlist_id)
+        items = get_all_playlist_tracks(sp, playlist_id)
 
         for item in tracks:
             track = item["track"]
-            if not track:
+            if not track or not track["artists"]:
                 continue
-            track_uri = track["uri"]
-            track_name = track["name"]
-            if track_uri in existing_uris or track_uri in songs_to_add:
-                continue
-            if not track["artists"] or "id" not in track["artists"][0]:
-                continue
-            artist_name = track["artists"][0]["name"]
-            artist_id = track["artists"][0]["id"]
+            track_data = {
+                "uri": track["uri"],
+                "name": track["name"],
+                "artist_name": track["artists"][0]["name"],
+                "artist_id": track["artists"][0].get("id"),
+            }
+            if track_data["artist_id"]:
+                songs_to_add.append(track_data)
+                candidate_artists.add(track_data["artist_id"])
 
-            if artist_id not in candidate_artists:
-                candidate_artists[artist_id] = []
-            candidate_artists[artist_id].append(
-                {"uri": track_uri, "track_name": track_name, "artist_name": artist_name}
-            )
+    print(f"--- 3. Checking genres for {len(candidate_artists)} artists ---")
+    artist_genre_map = get_artist_genre_map(list(candidate_artists), sp)
 
-    print(f"--- Checking genres for {len(candidate_artists)} artists ---")
-    ids_to_check = list(candidate_artists.keys())
-    valid_japanese_artist_genres = get_japanese_artist_genres(ids_to_check, sp)
+    print("--- 4. Sorting songs ---")
+    songs_to_add_map = {rule["target_id"]: [] for rule in active_rules}
 
-    for artist_id, matched_genre in valid_japanese_artist_genres.items():
-        tracks_data = candidate_artists[artist_id]
-        for track_data in tracks_data:
-            if (
-                track_data["uri"] not in existing_uris
-                and track_data["uri"] not in songs_to_add
-            ):
-                songs_to_add.append(track_data["uri"])
-                existing_uris.add(track_data["uri"])
-                print(
-                    f"Match ({matched_genre}): {track_data['track_name']} by {track_data['artist_name']}"
-                )
+    for track in songs_to_add:
+        artist_id = track["artist_id"]
+        track_uri = track["uri"]
+        artist_genres = artist_genre_map.get(artist_id, [])
 
-    if songs_to_add:
-        print(f"--- Adding {len(songs_to_add)} songs to target ---")
-        songs_to_add = list(set(songs_to_add))
-        for i in range(0, len(songs_to_add), 100):
-            chunk = songs_to_add[i : i + 100]
-            sp.playlist_add_items(TARGET_PLAYLIST_ID, chunk)
-        print("Done!")
-    else:
-        print("No matches found")
+        for rule in active_rules:
+            target_id = rule["target_id"]
+            match_found = False
+            matched_keyword = ""
+
+            for genre in artist_genres:
+                for keyword in rule["keywords"]:
+                    if keyword in genre.lower():
+                        match_found = True
+                        matched_keyword = genre
+                        break
+                if match_found:
+                    break
+
+            if match_found:
+                if (
+                    track_uri not in existing_tracks[target_id]
+                    and track_uri not in songs_to_add_map[target_id]
+                ):
+                    songs_to_add_map[target_id].append(track_uri)
+                    print(
+                        f"[{rule['id']}] match: {track['name']} - {track['artist_name']}({matched_keyword})"
+                    )
+
+    print("--- 5. Updating playlists ---")
+    for rule in active_rules:
+        tid = rule["target_id"]
+        songs = songs_to_add_map.get(tid, [])
+
+        if songs:
+            print(f"Adding {len(songs)} songs to {rule['name']}...")
+            for i in range(0, len(songs), 100):
+                sp.playlist_add_items(tid, songs[i : i + 100])
+        else:
+            print(f"No new songs for {rule['name']}")
+    print("Done!")
 
 
 if __name__ == "__main__":
