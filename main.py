@@ -193,6 +193,61 @@ SORTING_RULES = [
             "kurdish",
         ],
     },
+    {
+        "id": "az",
+        "name": "azeri (azəri)",
+        "target_id": "7Bonps8o4YrvnRZbUqCpNV",
+        "keywords": [
+            # Mainstream
+            "azeri",
+            # Rap & Meykhana
+            "meyxana",
+        ],
+    },
+    {
+        "id": "br",
+        "name": "brazilian portuguese",
+        "target_id": "0D96bhlUcO1GMnGmFCECCV",
+        "keywords": [
+            # Bossa Nova & MPB
+            "bossa nova",
+            "mpb",
+            "tropicalia",
+            "choro",
+            "manguebeat",
+            "jovem guarda",
+            # Samba & Pagode
+            "samba",
+            "pagode",
+            "partido alto",
+            # Funk Brasileiro (Rio/Baile Funk)
+            "carioca",
+            "ostentacao",
+            "paulista",
+            "mtg",
+            "consciente",
+            "mandelao",
+            "brega funk",
+            "funk 150 bpm",
+            "funk viral",
+            # Sertanejo & Forro
+            "sertanejo",
+            "agronejo",
+            "arrocha",
+            "forro",
+            "piseiro",
+            "tecnobrega",
+            "brega",
+            "axe",
+            "frevo",
+            "carimbo",
+            # Rock & Pop
+            "pop nacional",
+            "rock nacional",
+            "brazilian",
+            "brasileiro",
+        ],
+    },
 ]
 
 artist_cache = {}
