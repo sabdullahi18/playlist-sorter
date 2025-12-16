@@ -120,6 +120,39 @@ SORTING_RULES = [
             "belly dance",
         ],
     },
+    {
+        "id": "zh",
+        "name": "chinese (中文)",
+        "target_id": "6iMfJfX3hDFtbMe0koHh0B",
+        "keywords": [
+            # Mainstream Pop
+            "c-",
+            "chinese",
+            "mandopop",
+            "cantopop",
+            "hk-pop",
+            "taiwan",
+            "taiwanese",
+            "hokkien",
+            "hakkapop",
+            # Indie & Rock
+            "hong kong",
+            "shanghai",
+            "wuhan",
+            # Hip Hop & R&B
+            "sichuanese",
+            # Traditional & Instruments
+            "cantonese",
+            "zhongguo",
+            "guqin",
+            "guzheng",
+            "pipa",
+            "erhu",
+            "dizi",
+            # Specific Scenes
+            "xinyao",
+        ],
+    },
 ]
 
 artist_cache = {}
