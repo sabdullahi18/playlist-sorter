@@ -153,6 +153,28 @@ SORTING_RULES = [
             "xinyao",
         ],
     },
+    {
+        "id": "ru",
+        "name": "russian (русский)",
+        "target_id": "0nhh0RUd0JvboUAgO76OdH",
+        "keywords": [
+            # Pop & Dance
+            "russian",
+            # Hip Hop & Trap
+            # Rock, Post-Punk & Doomer
+            "soviet",
+            # Metal
+            "slavic",
+            # Folk & Regional
+            "tatar",
+            "yakut",
+            "chechen",
+            "siberian",
+            "tuvan",
+            "circassian",
+            "balalaika",
+        ],
+    },
 ]
 
 artist_cache = {}
