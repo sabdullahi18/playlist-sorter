@@ -175,6 +175,24 @@ SORTING_RULES = [
             "balalaika",
         ],
     },
+    {
+        "id": "ir",
+        "name": "persian (فارسی)",
+        "target_id": "1s3OL6khnDRW5nOvgY6DvN",
+        "keywords": [
+            # Mainstream Pop
+            "persian",
+            # Hip Hop & Rap (The biggest modern scene)
+            # Rock & Alternative
+            "iranian",
+            # Traditional & Classical
+            "musiqi-ye zanan",
+            # Regional (Iranian ethnic groups)
+            "mazandarani",
+            "balochi",
+            "kurdish",
+        ],
+    },
 ]
 
 artist_cache = {}
