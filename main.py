@@ -4,7 +4,19 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SOURCE_PLAYLISTS = ["4b7RbxLP6DoNE2IAUG9YVK"]
+SOURCE_PLAYLISTS = [
+    "4b7RbxLP6DoNE2IAUG9YVK",
+    "1tMv5HL5sHfSJpE6ChdBR3",
+    "7MXuwUl9SqxNa9EonYgJ0a",
+    "20vMMzo0AGe55fvIaBIP5z",
+    "3z0UND2T2LL8zOebTAiqg1",
+    "3IhnDGoeRYyHssF6N5iPJo",
+    "233LJVKVqnF7HtaRwrH4lO",
+    "6yD2igx3Wvo5KcX8GQCCH7",
+    "2vhbjheMvUKR3OyX4FQrN8",
+    "1KzJILWuReQ8OSjQanI5LG",
+    "1WOV25D9VCORXkjDwJ4oHq",
+]
 TARGET_PLAYLIST_ID = "2VR8EeOC3QYL8JudM4BLEl"
 
 artist_cache = {}
@@ -14,14 +26,19 @@ def get_japanese_artist_genres(artist_ids, sp):
     artist_genres_map = {}
     target_keywords = [
         "japanese",
-        "j-pop",
-        "j-rock",
+        "j-",
         "anime",
-        "j-metal",
         "city pop",
         "visual kei",
+        "vocaloid",
+        "bemani",
+        "doujin",
+        "enka",
+        "japanoise",
+        "oshare kei",
+        "shibuya-kei",
     ]
-    unique_ids = list(set(artist_ids))
+    unique_ids = [uid for uid in list(set(artist_ids)) if uid]
     for i in range(0, len(unique_ids), 50):
         chunk = unique_ids[i : i + 50]
         try:
