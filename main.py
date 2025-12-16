@@ -248,6 +248,92 @@ SORTING_RULES = [
             "brasileiro",
         ],
     },
+    {
+        "id": "rap",
+        "name": "american rap",
+        "target_id": "7u6ru8egT8bFqxwHyxAt9o",
+        "keywords": [
+            # Regional: South (Atlanta, Memphis, Florida, Texas)
+            "southern hip hop",
+            "dirty south rap",
+            "atl hip hop",
+            "atl trap",
+            "memphis hip hop",
+            "miami hip hop",
+            "florida rap",
+            "houston rap",
+            "new orleans rap",
+            "crunk",
+            "trap music",
+            "baton rouge rap",
+            # Regional: East Coast (NY, Philly)
+            "east coast hip hop",
+            "nyc rap",
+            "brooklyn drill",
+            "bronx drill",
+            "philly rap",
+            "queens hip hop",
+            "harlem hip hop",
+            "boom bap",
+            # Regional: West Coast (LA, Bay Area)
+            "west coast rap",
+            "cali rap",
+            "g funk",
+            "hyphy",
+            "oakland hip hop",
+            "bay area hip hop",
+            "sacramento hip hop",
+            # Regional: Midwest (Chicago, Detroit)
+            "chicago rap",
+            "chicago drill",
+            "detroit hip hop",
+            "detroit trap",
+            # Modern Styles & Subgenres
+            "melodic rap",
+            "cloud rap",
+            "emo rap",
+            "sad rap",
+            "rage rap",
+            "plugg",
+            "pluggnb",
+            "conscious hip hop",
+            "jazz rap",
+            "experimental hip hop",
+            "industrial hip hop",
+        ],
+    },
+    {
+        "id": "uk-rap",
+        "name": "uk rap",
+        "target_id": "208lHwlrPzMwuGVlT444Ws",
+        "keywords": [
+            # Core UK Rap & Hip Hop
+            "uk hip hop",
+            "british hip hop",
+            "uk melodic rap",
+            "uk alternative hip hop",
+            "uk christian rap",
+            # Grime & Drill
+            "grime",
+            "uk drill",
+            "grimewave",
+            "birmingham grime",
+            # Afroswing (Crucial for modern UK Rap)
+            "afroswing",
+            # Regional Scenes
+            "london",
+            "manchester",
+            "birmingham",
+            "nottingham",
+            "scottish",
+            "welsh",
+            # Adjacent / Origins (Garage & Bass often feature MCs)
+            "uk garage",
+            "bassline",
+            "uk bass",
+            "uk funky",
+        ],
+    },
 ]
 
 artist_cache = {}
@@ -385,7 +471,7 @@ def main():
                 ):
                     songs_to_add_map[target_id].append(track_uri)
                     print(
-                        f"[{rule['id']}] match: {track['name']} - {track['artist_name']}({matched_keyword})"
+                        f"[{rule['id']}] match: {track['name']} - {track['artist_name']} ({matched_keyword})"
                     )
 
     print("--- 5. Updating playlists ---")
