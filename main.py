@@ -334,6 +334,23 @@ SORTING_RULES = [
             "uk funky",
         ],
     },
+    {
+        "id": "kr",
+        "name": "korean (한국인)",
+        "target_id": "2X5jXqhcVInsJVNnSFhqWX",
+        "keywords": [
+            # Mainstream K-Pop
+            "k-pop",
+            "korean",
+            # Hip Hop & R&B
+            "k-rap",
+            # Indie & Rock
+            "k-indie",
+            "k-rock",
+            # Traditional & Classical
+            "pansori",
+        ],
+    },
 ]
 
 artist_cache = {}
