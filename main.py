@@ -194,14 +194,18 @@ SORTING_RULES = [
         ],
     },
     {
-        "id": "az",
-        "name": "azeri (azəri)",
+        "id": "ca",
+        "name": "caucasian",
         "target_id": "7Bonps8o4YrvnRZbUqCpNV",
         "keywords": [
-            # Mainstream
             "azeri",
-            # Rap & Meykhana
             "meyxana",
+            "armenian",
+            "georgian",
+            "caucasian",
+            "ossetian",
+            "circassian",
+            "chechen",
         ],
     },
     {
