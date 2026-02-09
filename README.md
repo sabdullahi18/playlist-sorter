@@ -1,5 +1,6 @@
 # playlist-sorter
-organises music library by scanning source playlists and sorting tracks into specific target playlists based on the artist's genres and language-specific keywords
+organises music library by scanning source playlists and sorting tracks into specific target playlists based on the artist's genres and language-specific keywords. if the songs are too obscure, spotify usually doesn't assign a genre to the track/artist, so this doesn't work
+![emoji](https://media.tenor.com/1mHBw8NYRyIAAAAi/cute-kooo.gif)
 
 ## Getting Started
 ### 1. Prerequisites
